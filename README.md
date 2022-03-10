@@ -1,2 +1,4 @@
 # catancounter
-google chrome extension that keeps track of people's hands for colonist.io.
+google chrome extension that keeps track of people's hands for colonist.io
+
+if bugs are found, message me with details.
