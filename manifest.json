@@ -1,0 +1,20 @@
+{
+  "name": "colonist.io resource tracker",
+  "description": "Automatically keeps track of resources in the online board game settlers of catan (colonist.io)",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["storage", "activeTab", "scripting"],
+  "content_scripts": [
+   {
+     "matches": ["https://colonist.io/*"],
+     "js": ["start.js"]
+   }
+ ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "/images/get_started16.png"
+    }
+  }
+
+}
