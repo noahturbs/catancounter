@@ -4,23 +4,23 @@
 //<div class="message_post" id="" style="color: rgb(226, 113, 116);"><img src="../dist/images/ic...
 let settlementsDone= false
 let playerList = []// array of player. example: [["noah", 1 , 2, 3, 0, 0, 0]...]
-let playerNamesList = []
+
 
 class player {
-  constructor(name) {
+  constructor(name,color) {
+
     this.name=name;
-    lumber=0;
-    brick=0;
-    wool=0;
-    wheat=0;
-    ore=0;
-    unknown=0;
+    this.color=color;
+    this.lumber=0;
+    this.brick=0;
+    this.wool=0;
+    this.wheat=0;
+    this.ore=0;
+    this.unknown=0;
+    this.totalsize=0;
   }
 }
 
-const square = new Rectangle(10, 10);
-
-console.log(square.area); // 100
 
 let targetNode = document.getElementById('game-log-text');
 const config = {subtree: true, childList: true, attributeFilter: [ "message_post" ] } //attributeFilter:true An array of specific attribute names to be monitored.
@@ -49,7 +49,7 @@ const wait_until_element_appear = setInterval(() => {
         clearInterval(wait_until_element_appear);
 
     }
-}, 5000);
+}, 2000);
 
 function gameStart() {
   observer = new MutationObserver(callback);
@@ -60,32 +60,65 @@ function gameStart() {
 
 
 function exploreNodes(NodeList){
+  //this gets called whenever the observerlist changes. it's basically whenever an event occurs.
   //let's travel through the node list!
 
 
   //check if string contains the keyword: "rolled:".?
 
 
-if (!settlementsDone){//then let's populate the playerlist.
+  processNodes(NodeList);
 
-  findReceivedStarting(NodeList);
-
-}//if (!settlementsDone)
 
 }//function exploreNodes
 
 
-function findReceivedStarting(NodeList){
+function processNodes(NodeList){
   for (let i = 0; i<NodeList.length; i++){
 
-  console.log(String(NodeList[i].innerHTML)); //innertext
-  if(String(NodeList[i].innerHTML).includes("received starting resources:")){
+    console.log(String(NodeList[i].innerHTML)); //innertext
 
-    receivedStarting(NodeList[i]); //finds name, and inserts it into players[]. also finds starting resources in hand.
+    switch(true){
+      case (String(NodeList[i].innerHTML).includes("rolled:") && !settlementsDone):
+        //now add UI to window!
+
+        settlementsDone=true;
+        return;
 
 
-    //check if string contains the keyword: "rolled:"
-    //<img src="../dist/images/icon_player.svg?v127" alt="Guest" height="20" width="20">
+
+    switch(true){
+      case (String(NodeList[i].innerHTML).includes("received starting resources:")):
+        receivedStarting(NodeList,i); //finds name, and inserts it into players[]. also finds starting resources in hand
+        return;
+
+      case (String(NodeList[i].innerHTML).includes(" got: ")):
+        processGot(NodeList[i]); //process keyword " got: " and adds it to the player's hand.
+        return;
+
+
+      case (String(NodeList[i].innerHTML).includes(" built a ")):
+        processBuilt(NodeList[i]); //process keyword " built a " this can be road, settlement, city. subtracts mats from hand
+        return;
+
+
+      case (String(NodeList[i].innerHTML).includes(" bought ")):
+        processBought(NodeList[i]); //process keyword " bought " [dev card]. subtracts mats from hand
+        return;
+
+      case (String(NodeList[i].innerHTML).includes(" stole: ") && String(NodeList[i].innerHTML).includes(" from: ")):
+        processStole(NodeList[i]); //process keyword " stole " [dev card]. has to process 'you' within the method as well.
+        return;
+
+
+
+      }//switch
+
+
+    }//for
+}//processNodes function
+
+
     //noa#7878 received starting resources:  <img src="../dist/images/card_ore.svg?v127"
     // alt="ore" height="20" width="14.25" class="lobby-chat-text-icon">
     //<img src="../dist/images/card_grain.svg?v127" alt="grain" height="20" width="14.25"
@@ -93,15 +126,17 @@ function findReceivedStarting(NodeList){
     // class="lobby-chat-text-icon">
 
     //<img src="../dist/images/icon_player.svg?v127" alt="Guest" height="20" width="20">noa#7878 received starting resources:  <img src="../dist/images/card_brick.svg?v127" alt="brick" height="20" width="14.25" class="lobby-chat-text-icon"><img src="../dist/images/card_wool.svg?v127" alt="wool" height="20" width="14.25" class="lobby-chat-text-icon"><img src="../dist/images/card_brick.svg?v127" alt="brick" height="20" width="14.25" class="lobby-chat-text-icon">
-  }
 
 
-}//for loop
 
-}//function findReceivedStarting
 
-function receivedStarting(Node){
+function receivedStarting(NodeList, i){//gets called when "received starting resources:" is found.
+  //<div class="message_post" id="" style="color: rgb(226, 113, 116);"><img src="../dist/images/icon_player.svg?v127" alt="Guest" height="20" width="20">noa#7878 placed a <img src="../dist/images/road_red.svg?v127" alt="road" height="20" width="20" class="lobby-chat-text-icon"></div>
+  Node=NodeList[i];
+  console.log("Below is attempt to print style")
+  playerRGB = window.getComputedStyle(Node).color
   let re1=new RegExp(">(.*) received");
+
   let playernamestring=re1.exec(String(Node.innerHTML));
   console.log(playernamestring[1]);
 
@@ -109,24 +144,24 @@ function receivedStarting(Node){
 
 
 
-  let tempplayer = new player(playernamestring[1]);
-  //TODO: CHECK W/ REGEX FOR THE STARTING RESOURCES. AND GIVE PLAYERS THOSE RESOURCES.
+  let tempplayer = new player(playernamestring[1], playerRGB);
+  //STILL NEED TO DO: CHECK W/ REGEX FOR THE STARTING RESOURCES. AND GIVE PLAYERS THOSE RESOURCES.
   //THEN PUSH IT INTO THE ARRAY, AS PART OF AN ARRAY.
   addResources(Node, tempplayer);
 
 
 
-  players.push(playernamestring[1]);
+  players.push(tempplayer);
   console.log([players]);
   //TODO: CHECK W/ REGEX FOR THE STARTING RESOURCES. AND GIVE PLAYERS THOSE RESOURCES.
   //TODO: check for "rolled:"?
 
 }//function receivedStarting
 
-function addResources(Node, tempplayer){
-  (\"lumber\"|\"brick\"|\"wool\"|\"wheat\"|\"ore\")
+//function addResources(Node, tempplayer){
+  //(\"lumber\"|\"brick\"|\"wool\"|\"wheat\"|\"ore\")
   //TODO: FINISH THIS!!!!!!!
-}
+//}
 
 //textContent gives... 'noa#7878 rolled a:'... 'noa#7878 got:'
 //textContent doesn't give info about images.
