@@ -1,0 +1,20 @@
+#table1 {
+    display: table;
+    border-collapse: separate;
+    box-sizing: border-box;
+    text-indent: initial;
+    border-spacing: 0px;
+    border-color: grey;
+    position: absolute;
+    left: 220px;
+    top: 0px;
+    z-index: 5;
+    height: 10%;
+    width: 15%;
+}
+#table1 td {
+  text-align: center;
+}
+#table1 td:first-child {
+    text-align: left;
+}​
