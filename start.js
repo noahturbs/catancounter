@@ -1,10 +1,5 @@
-//<body class="vsc-initialized" style="background-color: rgb(50, 141, 192); overflow: hidden;">
-
-//<div class="game_chat_text_div" id="game-log-text"
-//<div class="message_post" id="" style="color: rgb(226, 113, 116);"><img src="../dist/images/ic...
 let settlementsDone= false
 let playerList = []// array of player. example: [["noah", 1 , 2, 3, 0, 0, 0]...]
-
 
 class player {
   constructor(name,color) {
@@ -101,19 +96,21 @@ function processNodes(NodeList){
       case (String(NodeList[i].innerHTML).includes(" built a ")):
         processBuilt(NodeList[i]); //process keyword " built a " this can be road, settlement, city. subtracts mats from hand
         deleteTable();
+        resetIfHandsEmpty();
         createTable();
         return;
 
       case (String(NodeList[i].innerHTML).includes(" bought ")):
         processBought(NodeList[i]); //process keyword " bought " [dev card]. subtracts mats from hand
         deleteTable();
+        resetIfHandsEmpty();
         createTable();
         return;
 
-      case (String(NodeList[i].innerHTML).includes(" stole: ") && String(NodeList[i].innerHTML).includes(" from: ")):
-        //TODO; when 'Player A steals from you' [you is the victim], still need to implement this with image processing
+      case (String(NodeList[i].innerHTML).includes(" stole") && String(NodeList[i].innerHTML).includes(" from")):
         processStole(NodeList[i]); //process keyword " stole " [dev card]. has to process 'you' within the method as well.
         deleteTable();
+        resetIfHandsEmpty();
         createTable();
         return;
 
@@ -138,6 +135,7 @@ function processNodes(NodeList){
         //TODO. monopoly.
         processMonopoly(NodeList[i]); //process keyword " stole ".  this is when a monopoly is triggered!
         deleteTable();
+        resetIfHandsEmpty();
         createTable();
         return;
 
@@ -298,6 +296,7 @@ tempplayer.unknown+= (text.match(/alt="card"/g) || []).length; //this is either 
 function subResources(tempplayer, text){
 
 //consider catching "you" as a keyword, and accounting for that.
+
 tempplayer.lumber-= (text.match(/alt="lumber"/g) || []).length;
 tempplayer.brick-= (text.match(/alt="brick"/g) || []).length;
 tempplayer.wool-= (text.match(/alt="wool"/g) || []).length;
@@ -305,7 +304,7 @@ tempplayer.grain-= (text.match(/alt="grain"/g) || []).length;
 tempplayer.ore-= (text.match(/alt="ore"/g) || []).length;
 tempplayer.unknown-= (text.match(/alt="card"/g) || []).length; //this is either 1 or 0;
 //<img src="../dist/images/card_rescardback.svg?v129" alt="card" height="20" width="14.25" class="lobby-chat-text-icon">
-
+resetWhenResourceNegative();
 }
 function processGot(tempnode){
 //figure out which player is getting the
@@ -359,8 +358,7 @@ const [first, ...rest] = tempstring.split(' and took');
 const second = rest.join();
 
 nameindex= findIndex(first);
-//console.log(first);
-//console.log(second);
+
 
 
 subResources(playerList[nameindex],first);
@@ -441,17 +439,25 @@ function processStole(tempnode){
   //Above is...
   //Player A stole <img>.... alt="wool"... from you
   else if(String(tempnode.innerHTML).includes("from you")){
-    //this is difficult to handle. we have to do image processing to figure out who "you" is.
+    //<p class="header_profile_username __web-inspector-hide-shortcut__"
+    //id="header_profile_username" style="font-weight: bold;">noa#0570</p>
+
     var tempstring = String(tempnode.innerHTML);
-    const [first, ...rest] = tempstring.split('from: ');
+    const [first, ...rest] = tempstring.split('from');
 
-    const second = rest.join();
-
+    //const second = rest.join();
+    var youNode = document.getElementById('header_profile_username');
+    //console.log(String(youNode.innerHTML));
     firstnameindex= findIndex(first);
-    //secondnameindex=findIndex(second);
+    secondnameindex=findIndex(youNode);
+
+    //console.log('detected that [you] has been stolen from. printing out index of who got robbed');
+    //console.log(secondnameindex);
+    addResources(playerList[firstnameindex], String(tempnode.innerHTML));
+    subResources(playerList[secondnameindex], String(tempnode.innerHTML));
+
     //
   }
-
 
   //<div class="message_post" id="" style="color: rgb(98, 185, 93);
   //"><img src="../dist/images/icon_bot.svg?v129" alt="bot" height="20" width="20">
@@ -470,6 +476,7 @@ function processStole(tempnode){
     secondnameindex=findIndex(second);
     addResources(playerList[firstnameindex], String(tempnode.innerHTML));
     subResources(playerList[secondnameindex], String(tempnode.innerHTML));
+    //console.log(String(tempnode.innerHTML));
   }
 }//function processStole
 
@@ -509,4 +516,53 @@ function findIndexByColor(tempnode){
     } //for
     return -1;
   //playerRGB = window.getComputedStyle(Node).color
+}
+
+function resetIfHandsEmpty(){
+
+//iterates through the playerList and resets the hand to 0 if their hand is empty or is a negative number.
+resetWhenResourceNegative();
+for (var i=0; i<playerList.length;i++){
+    tempsum= playerList[i].lumber + playerList[i].brick + playerList[i].wool + playerList[i].grain + playerList[i].ore + playerList[i].unknown;
+    if(tempsum<1){
+      playerList[i].lumber=0;
+      playerList[i].brick=0;
+      playerList[i].wool=0;
+      playerList[i].grain=0;
+      playerList[i].ore=0;
+      playerList[i].unknown=0;
+      }//if
+  }//for
+
+
+
+}
+
+
+function resetWhenResourceNegative(){
+//if a real resource is negative, then compensates with the unknown pile.
+  for (var j=0; j<playerList.length;j++){
+      if(playerList[j].lumber<0){
+        playerList[j].unknown+= playerList[j].lumber;
+        playerList[j].lumber=0;
+        }//if
+      if(playerList[j].brick<0){
+        playerList[j].unknown+= playerList[j].brick;
+        playerList[j].brick=0;
+        }//if
+      if(playerList[j].wool<0){
+        playerList[j].unknown+= playerList[j].wool;
+        playerList[j].wool=0;
+        }//if
+      if(playerList[j].grain<0){
+        playerList[j].unknown+= playerList[j].grain;
+        playerList[j].grain=0;
+        }//if
+      if(playerList[j].ore<0){
+        playerList[j].unknown+= playerList[j].ore;
+        playerList[j].ore=0;
+        }//if
+
+    }//for
+
 }
