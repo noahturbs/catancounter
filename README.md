@@ -22,6 +22,6 @@ How do I install this thing?
 
 -Browse through your pc and select the folder with the extracted files.
 
-Congrats! The chrome extension will pop up in the list of your chrome extensions. Make sure it's toggled on. You have installed the chrome extension.
+The chrome extension will pop up in the list of your chrome extensions. Make sure that the project you just added is turned on. Congrats! You have installed the chrome extension.
 
 If you close or refresh the tab of a game being played, the chrome extension will lose track of the resources and the game. The U.I. pops up after all settlements have been placed.
