@@ -71,8 +71,9 @@ function processNodes(NodeList){
 
       case (String(NodeList[i].innerHTML).includes("rolled:") && !settlementsDone):
         //now add UI to window!
-        playerList.reverse();
-        //rearrange list here
+        playerList.reverse(); //preps the the player list to be ordered correcetly
+        reorderList();
+        //reorder list here
         createTable();
         settlementsDone=true;
         return;
@@ -138,6 +139,9 @@ function processNodes(NodeList){
         resetIfHandsEmpty();
         createTable();
         return;
+      case (String(NodeList[i].innerHTML).includes(" won the game!")):
+        deleteTable();
+        playerList=[];
 
       }//switch
     }//for
@@ -564,5 +568,17 @@ function resetWhenResourceNegative(){
         }//if
 
     }//for
+
+}
+function reorderList(){
+  //function grabs who the "you" keyword is, then makes sure that the associated player is at the
+  //bottom of the list. the table now matches the game's UI.
+  var youNode = document.getElementById('header_profile_username');
+
+  while(!String(youNode.innerHTML).includes(playerList[playerList.length-1].name)) {
+    playerList.unshift(playerList.pop());
+  }
+
+
 
 }
