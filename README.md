@@ -13,7 +13,7 @@ How do I install this thing?
 - In the top right of github there's a green dropdown menu that says "Code". Select "Download as ZIP"
 ![image](https://user-images.githubusercontent.com/36610564/163658375-445bde8c-6f00-45c0-9229-7f6ab7eded6e.png)
 
--Extract the zip folder. You should now have a folder with all the files of the project(start.js, manifest.josn, etc.)
+-Extract the zip folder. You should now have a folder with all the files of the project(start.js, manifest.json, etc.)
 
 -Go to the following url: "chrome://extensions/"
 
