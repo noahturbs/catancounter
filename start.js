@@ -337,6 +337,7 @@ else if((String(tempnode.innerHTML).match(/alt="city"/g) || []).length > 0){
   playerList[index].grain-=2;
   playerList[index].ore-=3;
   }
+  resetWhenResourceNegative();
 
 }//function processBuilt
 
@@ -345,6 +346,7 @@ function processBought(tempnode){
   playerList[index].wool--;
   playerList[index].grain--;
   playerList[index].ore--;
+  resetWhenResourceNegative();
 }//function processBuilt
 
 
@@ -516,15 +518,15 @@ function findIndexByColor(tempnode){
         return i;
       }//if
 
-
     } //for
     return -1;
   //playerRGB = window.getComputedStyle(Node).color
 }
 
 function resetIfHandsEmpty(){
-
 //iterates through the playerList and resets the hand to 0 if their hand is empty or is a negative number.
+
+
 resetWhenResourceNegative();
 for (var i=0; i<playerList.length;i++){
     tempsum= playerList[i].lumber + playerList[i].brick + playerList[i].wool + playerList[i].grain + playerList[i].ore + playerList[i].unknown;
@@ -538,10 +540,7 @@ for (var i=0; i<playerList.length;i++){
       }//if
   }//for
 
-
-
 }
-
 
 function resetWhenResourceNegative(){
 //if a real resource is negative, then compensates with the unknown pile.
@@ -569,7 +568,8 @@ function resetWhenResourceNegative(){
 
     }//for
 
-}
+}//function resetWhenResourceNegative
+
 function reorderList(){
   //function grabs who the "you" keyword is, then makes sure that the associated player is at the
   //bottom of the list. the table now matches the game's UI.
@@ -577,8 +577,7 @@ function reorderList(){
 
   while(!String(youNode.innerHTML).includes(playerList[playerList.length-1].name)) {
     playerList.unshift(playerList.pop());
-  }
+  }//while
 
 
-
-}
+}//function reorderList
