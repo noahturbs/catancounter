@@ -1,18 +1,18 @@
 let settlementsDone= false
 let playerList = []// array of player. example: [["noah", 1 , 2, 3, 0, 0, 0]...]
 
+
 class player {
   constructor(name,color) {
 
-    this.name=name;
-    this.color=color;
+    this.name=name; //name, like "human#0069"
+    this.color=color; //an associated rgb value. the player's 'color'
     this.lumber=0;
     this.brick=0;
     this.wool=0;
     this.grain=0;
     this.ore=0;
     this.unknown=0;
-    this.totalsize=0;
   }
 }
 
@@ -61,6 +61,14 @@ function exploreNodes(NodeList) {
 
 }//function exploreNodes
 
+function includeJs(jsFilePath) {
+var js = document.createElement("script");
+
+js.type = "text/javascript";
+js.src = jsFilePath;
+
+document.body.appendChild(js);
+}
 
 function processNodes(NodeList){
 
@@ -76,6 +84,10 @@ function processNodes(NodeList){
         //reorder list here
         createTable();
         settlementsDone=true;
+
+
+        returnImage();
+
         return;
 
       case (String(NodeList[i].innerHTML).includes("received starting resources:")):
@@ -142,6 +154,7 @@ function processNodes(NodeList){
       case (String(NodeList[i].innerHTML).includes(" won the game!")):
         deleteTable();
         playerList=[];
+        settlementsDone=false;
 
       }//switch
     }//for
@@ -156,7 +169,7 @@ function deleteTable(){
 }
 
 function createTable(){
-  var canvas = document.getElementsByClassName('canvas');
+  //var canvas = document.getElementsByClassName('canvas');
   var table = document.createElement('table');
   table.setAttribute('id','table1');
 
@@ -415,6 +428,12 @@ function processDiscarded(tempnode){
 //<div class="message_post" id="" style="color: rgb(226, 113, 116);"><img src="../dist/images/icon_player.svg?v129" alt="Guest" height="20" width="20">noa#7878 discarded: <img src="../dist/images/card_lumber.svg?v129" alt="lumber" height="20" width="14.25" class="lobby-chat-text-icon"><img src="../dist/images/card_lumber.svg?v129" alt="lumber" height="20" width="14.25" class="lobby-chat-text-icon"><img src="../dist/images/card_grain.svg?v129" alt="grain" height="20" width="14.25" class="lobby-chat-text-icon"></div>
 }
 
+function processMonopoly(tempnode){
+  //"noa#070 stole 13: [sheep img]"
+  index=findIndex(tempnode);
+
+
+}
 function processStole(tempnode){
   //<div class="message_post" id="" style="color: rgb(226, 113, 116); //red
   //"><img src="../dist/images/icon_player.svg?v129" alt="Guest" height="20" width="20">//
@@ -465,13 +484,6 @@ function processStole(tempnode){
     //
   }
 
-  //<div class="message_post" id="" style="color: rgb(98, 185, 93);
-  //"><img src="../dist/images/icon_bot.svg?v129" alt="bot" height="20" width="20">
-  //Nanji stole  <img src="../dist/images/card_rescardback.svg?v129" alt="card" height="20" width="14.25"
-  //class="lobby-chat-text-icon"> from: Bliss</div>
-  //Above is...
-  //Player A stole <img>.... alt="card"... from: Player B
-
   else if(String(tempnode.innerHTML).includes("from: ")){
     var tempstring = String(tempnode.innerHTML);
     const [first, ...rest] = tempstring.split('from: ');
@@ -482,7 +494,7 @@ function processStole(tempnode){
     secondnameindex=findIndex(second);
     addResources(playerList[firstnameindex], String(tempnode.innerHTML));
     subResources(playerList[secondnameindex], String(tempnode.innerHTML));
-    //console.log(String(tempnode.innerHTML));
+  
   }
 }//function processStole
 
