@@ -7,7 +7,8 @@
   "content_scripts": [
    {
      "matches": ["https://colonist.io/*"],
-     "js": ["start.js"]
+     "js": ["start.js"],
+      "css": ["table.css"]
    }
  ],
   "action": {
