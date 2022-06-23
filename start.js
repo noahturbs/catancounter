@@ -5,7 +5,7 @@ let playerList = []// array of player. example: [["noah", 1 , 2, 3, 0, 0, 0]...]
 class player {
   constructor(name,color) {
 
-    this.name=name; //name, like "human#0069"
+    this.name=name; //name, like "human#006"
     this.color=color; //an associated rgb value. the player's 'color'
     this.lumber=0;
     this.brick=0;
