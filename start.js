@@ -71,7 +71,7 @@ document.body.appendChild(js);
 }
 
 function processNodes(NodeList){
-
+//an event just occured in the game event log. let's process the node as a string by looking for keywords
   for (let i = 0; i<NodeList.length; i++){
 
     switch(true){
@@ -298,6 +298,7 @@ function receivedStarting(NodeList, i){//gets called when "received starting res
 
 
 function addResources(tempplayer, text){
+//add resources to a player
 
 //consider catching "you" as a keyword, and accounting for that.
 tempplayer.lumber+= (text.match(/alt="lumber"/g) || []).length;
@@ -311,6 +312,7 @@ tempplayer.unknown+= (text.match(/alt="card"/g) || []).length; //this is either 
 }
 
 function subResources(tempplayer, text){
+//subtracts resources from a player
 
 //consider catching "you" as a keyword, and accounting for that.
 
@@ -332,7 +334,7 @@ addResources(playerList[index],String(tempnode.innerHTML));
 }
 
 function processBuilt(tempnode){
-
+//we've already found the keyword 'built'. now we search for what was built, then subtract the appropriate resources from player
 index = findIndex(tempnode);//gets the index of the player that just built!
 
 if((String(tempnode.innerHTML).match(/alt="road"/g) || []).length > 0){
@@ -364,6 +366,8 @@ function processBought(tempnode){
 
 
 function processBank(tempnode){
+//processes bank trades, which includes any port trades.
+
 //<div class="message_post" id="" style="color: rgb(226, 113, 116);">
 //<img src="../dist/images/icon_player.svg?v129" alt="Guest" height="20" width="20">
 //noa#7878 gave bank:   <img src="../dist/images/card_lumber.svg?v129" alt="lumber" height="20" width="14.25" class="lobby-chat-text-icon"><img src="../dist/images/card_lumber.svg?v129" alt="lumber"
@@ -377,8 +381,6 @@ const [first, ...rest] = tempstring.split(' and took');
 const second = rest.join();
 
 nameindex= findIndex(first);
-
-
 
 subResources(playerList[nameindex],first);
 //first half, decrement the things!
@@ -431,9 +433,108 @@ function processDiscarded(tempnode){
 function processMonopoly(tempnode){
   //"noa#070 stole 13: [sheep img]"
   index=findIndex(tempnode);
+  text = String(tempnode.innerHTML);
+  var transfer=0;
+
+  for (var i=0; i<playerList.length;i++){
+      if(i==index){
+        continue;
+      }//if
 
 
-}
+      if((text.match(/alt="lumber"/g) || []).length>0){
+        transfer=playerList[i].lumber;
+        playerList[i].lumber=0;
+        playerList[index].lumber+=transfer;
+
+      }
+      else if((text.match(/alt="brick"/g) || []).length>0){
+        transfer=playerList[i].brick;
+        playerList[i].brick=0;
+        playerList[index].brick+=transfer;
+
+      }
+      else if((text.match(/alt="wool"/g) || []).length>0){
+        transfer=playerList[i].wool;
+        playerList[i].wool=0;
+        playerList[index].wool+=transfer;
+
+      }
+      else if((text.match(/alt="grain"/g) || []).length>0){
+        transfer=playerList[i].grain;
+        playerList[i].grain=0;
+        playerList[index].grain+=transfer;
+
+      }
+      else if((text.match(/alt="ore"/g) || []).length>0){
+        transfer=playerList[i].ore;
+        playerList[i].ore=0;
+        playerList[index].ore+=transfer;
+
+      }
+
+
+    } //for
+
+
+}//function processMonopoly
+
+//TODO! opencv function.
+function returnImage(){
+  //grab the canvas
+  //return the canvas!
+  let canvas = document.getElementsByTagName("canvas")[0];
+  var stream = canvas.captureStream();
+
+  //stream.getVideoTracks()[0].requestFrame();
+  //const stream = canvas.captureStream(); // frames per second
+  console.log('Started stream capture from canvas element: ', stream);
+  let track= stream.getVideoTracks()[0];
+  //let track.grabFrame();
+  //imageCapture = new ImageCapture(track).grabFrame();
+  imageCapture = new ImageCapture(track).grabFrame();
+
+  console.log('Took photo:', imageCapture);
+
+  imageCapture.then((data) => {
+    const c = document.createElement("canvas");
+    c.id="yep"
+
+    c.width = canvas.width;
+    c.height = canvas.height;
+    const brc = c.getContext("2d");
+    console.log(data);
+    //brc.drawImage(data,0,0);
+    document.getElementsByTagName('body')[0].appendChild(c);
+    let img = cv.imread(data);
+    cv.imshow(c, img);
+
+  // prints 'All things went well!'
+  },
+  (error) => {
+  console.log(error); // prints Error object
+  }
+);
+  //create a new canvas,
+
+
+  //let ctx = canvas.getContext;
+  //console.log(ctx)
+  //var Pic = canvas.toDataURL("image/png").split(';base64,')[1];
+  //console.log(Pic);
+
+  //var target = new Image();
+  //target.src = canvas.getImageData(0,0,canvas.width,canvas.width);
+  //document.body.appendChild(target);
+  //console.log(Pic);
+
+
+//1206x722
+  //canvas = document.getElementById('canvas');
+
+}//function returnImage
+
+
 function processStole(tempnode){
   //<div class="message_post" id="" style="color: rgb(226, 113, 116); //red
   //"><img src="../dist/images/icon_player.svg?v129" alt="Guest" height="20" width="20">//
@@ -494,7 +595,7 @@ function processStole(tempnode){
     secondnameindex=findIndex(second);
     addResources(playerList[firstnameindex], String(tempnode.innerHTML));
     subResources(playerList[secondnameindex], String(tempnode.innerHTML));
-  
+
   }
 }//function processStole
 
